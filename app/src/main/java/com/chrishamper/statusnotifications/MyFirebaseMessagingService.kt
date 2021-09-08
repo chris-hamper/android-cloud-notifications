@@ -11,6 +11,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.chrishamper.statusnotifications.messageList.MessageListActivity
+import com.chrishamper.statusnotifications.messageList.MESSAGE_BODY
+import com.chrishamper.statusnotifications.messageList.MESSAGE_TITLE
+import com.chrishamper.statusnotifications.messageList.NEW_MESSAGE_ACTIVITY_INTENT_CODE
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -112,7 +116,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * @param body FCM message body received.
      */
     private fun sendNotification(title: String, body: String) {
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MessageListActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.putExtra(MESSAGE_TITLE, title)
         intent.putExtra(MESSAGE_BODY, body)

@@ -10,4 +10,5 @@
     <!-- [START fcm_default_icon_string] -->
     <string name="default_notification_channel_name" translatable="true">Status Notifications</string>
     <!-- [END fcm_default_icon_string] -->
+    <string name="remove_message">Remove Message</string>
 </resources>

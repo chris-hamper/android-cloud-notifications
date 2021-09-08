@@ -28,7 +28,7 @@
         <!-- [END fcm_default_channel] -->
 
         <activity
-            android:name=".MainActivity"
+            android:name=".messageList.MessageListActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,6 +36,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".messageDetail.MessageDetailActivity" />
 
         <service
             android:name=".MyFirebaseMessagingService"

@@ -14,43 +14,33 @@
  * limitations under the License.
  */
 
-package com.chrishamper.statusnotifications.messageList
+package com.chrishamper.statusnotifications.messageDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.chrishamper.statusnotifications.data.DataSource
 import com.chrishamper.statusnotifications.data.Message
-import java.util.*
-import kotlin.random.Random
 
-class MessageListViewModel(val dataSource: DataSource) : ViewModel() {
+class MessageDetailViewModel(private val datasource: DataSource) : ViewModel() {
 
-    val liveData = dataSource.getMessageList()
+    /* Queries datasource to returns a message that corresponds to an id. */
+    fun getMessageForId(id: Long) : Message? {
+        return datasource.getMessageForId(id)
+    }
 
-    /* If the name and description are present, create new Message and add it to the datasource */
-    fun insertMessage(title: String?, body: String?) {
-        if (title == null || body == null) {
-            return
-        }
-
-        val msg = Message(
-            Random.nextLong(),
-            title,
-            body,
-            Calendar.getInstance().time,
-        )
-
-        dataSource.addMessage(msg)
+    /* Tells datasource to remove a message. */
+    fun removeMessage(message: Message) {
+        datasource.removeMessage(message)
     }
 }
 
-class MessageListViewModelFactory : ViewModelProvider.Factory {
+class MessageDetailViewModelFactory : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MessageListViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(MessageDetailViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MessageListViewModel(
-                dataSource = DataSource.getDataSource()
+            return MessageDetailViewModel(
+                datasource = DataSource.getDataSource()
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
