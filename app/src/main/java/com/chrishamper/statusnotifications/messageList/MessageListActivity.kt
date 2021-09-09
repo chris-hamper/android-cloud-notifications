@@ -1,30 +1,21 @@
-/*
- * Copyright (C) 2020 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.chrishamper.statusnotifications.messageList
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.os.Build
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.activity.viewModels
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import com.chrishamper.statusnotifications.R
-import com.chrishamper.statusnotifications.messageDetail.MessageDetailActivity
 import com.chrishamper.statusnotifications.data.Message
+import com.chrishamper.statusnotifications.messageDetail.MessageDetailActivity
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import java.util.Calendar
 
 const val MESSAGE_ID = "message id"
 const val MESSAGE_TITLE = "title"
@@ -32,7 +23,6 @@ const val MESSAGE_BODY = "body"
 const val NEW_MESSAGE_ACTIVITY_INTENT_CODE = 1
 
 class MessageListActivity : AppCompatActivity() {
-    private val newMessageActivityRequestCode = 1
     private val messageListViewModel by viewModels<MessageListViewModel> {
         MessageListViewModelFactory()
     }
@@ -51,6 +41,46 @@ class MessageListActivity : AppCompatActivity() {
                 messageAdapter.submitList(it as MutableList<Message>)
             }
         })
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // Create channel to show notifications.
+            val channelId = getString(R.string.default_notification_channel_id)
+            val channelName = getString(R.string.default_notification_channel_name)
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager?.createNotificationChannel(
+                NotificationChannel(channelId,
+                    channelName, NotificationManager.IMPORTANCE_DEFAULT)
+            )
+        }
+
+        // If a notification message is tapped, any data accompanying the notification
+        // message is available in the intent extras. In this sample the launcher
+        // intent is fired when the notification is tapped, so any accompanying data would
+        // be handled here. If you want a different intent fired, set the click_action
+        // field of the notification message to the desired intent. The launcher intent
+        // is used when no click_action is specified.
+        //
+        // Handle possible data accompanying notification message.
+        // [START handle_data_extras]
+        intent.extras?.let {
+            for (key in it.keySet()) {
+                val value = intent.extras?.get(key)
+                Log.d(TAG, "Key: $key Value: $value")
+            }
+
+            addMessageFromIntent(intent)
+        }
+        // [END handle_data_extras]
+
+        Firebase.messaging.subscribeToTopic("status")
+            .addOnCompleteListener { task ->
+                var msg = getString(R.string.msg_subscribed)
+                if (!task.isSuccessful) {
+                    msg = getString(R.string.msg_subscribe_failed)
+                }
+                Log.d(TAG, msg)
+//                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            }
     }
 
     /* Opens MessageDetailActivity when RecyclerView item is clicked. */
@@ -60,17 +90,28 @@ class MessageListActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intentData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intentData)
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, intent)
+//
+//        /* Inserts message into viewModel. */
+//        if (requestCode == NEW_MESSAGE_ACTIVITY_INTENT_CODE && resultCode == Activity.RESULT_OK) {
+//            intent?.let { addMessageFromIntent(it) }
+//        }
+//    }
 
-        /* Inserts message into viewModel. */
-        if (requestCode == newMessageActivityRequestCode && resultCode == Activity.RESULT_OK) {
-            intentData?.let { data ->
-                val messageTitle = data.getStringExtra(MESSAGE_TITLE)
-                val messageBody = data.getStringExtra(MESSAGE_BODY)
+    private fun addMessageFromIntent(intent: Intent) {
+        val title = intent.getStringExtra(MESSAGE_TITLE)
+        val body = intent.getStringExtra(MESSAGE_BODY)
+//                val received = data.getLongExtra(MESSAGE_RECEIVED)
 
-                messageListViewModel.insertMessage(messageTitle, messageBody)
-            }
+        if (title == null || body == null) {
+            return
         }
+
+        messageListViewModel.insertMessage(title, body)
+    }
+
+    companion object {
+        private const val TAG = "MessageListActivity"
     }
 }
