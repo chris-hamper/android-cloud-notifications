@@ -17,8 +17,10 @@
 package com.chrishamper.statusnotifications.messageDetail
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.chrishamper.statusnotifications.MyApplication
@@ -26,6 +28,10 @@ import com.chrishamper.statusnotifications.R
 import com.chrishamper.statusnotifications.messageList.MESSAGE_ID
 
 class MessageDetailActivity : AppCompatActivity() {
+    private val messageTitle: TextView by lazy { findViewById(R.id.message_detail_title) }
+    private val messageBody: TextView by lazy { findViewById(R.id.message_detail_body) }
+    private val removeMessageButton: Button by lazy { findViewById(R.id.remove_button) }
+
     private val messageDetailViewModel by viewModels<MessageDetailViewModel> {
         MessageDetailViewModelFactory((application as MyApplication).repo)
     }
@@ -34,31 +40,30 @@ class MessageDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_detail)
 
-        var currentMessageId: String? = null
+        var messageId: String? = null
+        intent.extras?.let { messageId = it.getString(MESSAGE_ID) }
 
-        /* Connect variables to UI elements. */
-        val messageTitle: TextView = findViewById(R.id.message_detail_title)
-        val messageBody: TextView = findViewById(R.id.message_detail_body)
-        val removeMessageButton: Button = findViewById(R.id.remove_button)
-
-        val bundle: Bundle? = intent.extras
-        if (bundle != null) {
-            currentMessageId = bundle.getString(MESSAGE_ID)
+        if (messageId == null) {
+            Log.e(TAG, "No message ID passed in extras")
+            finish()
+            return
         }
 
-        // If currentMessageId is not null, get corresponding message and set fields
-        currentMessageId?.let {
-            val currentMessage = messageDetailViewModel.getMessageForId(it)
-            messageTitle.text = currentMessage?.title
-            messageBody.text = currentMessage?.body
+        messageDetailViewModel.repo.getByID(messageId!!).observe(this, { msg ->
+            msg?.let {
+                // Connect fields to UI elements.
+                messageTitle.text = msg.title
+                messageBody.text = msg.body
 
-            removeMessageButton.setOnClickListener {
-                if (currentMessage != null) {
-                    messageDetailViewModel.removeMessage(currentMessage)
+                removeMessageButton.setOnClickListener {
+                    messageDetailViewModel.removeMessage(msg)
+                    finish()
                 }
-                finish()
             }
-        }
+        })
+    }
 
+    companion object {
+        private const val TAG = "MessageDetailActivity"
     }
 }

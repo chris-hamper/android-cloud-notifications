@@ -16,6 +16,7 @@
 
 package com.chrishamper.statusnotifications.messageDetail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
@@ -24,18 +25,14 @@ import com.chrishamper.statusnotifications.data.Message
 import com.chrishamper.statusnotifications.data.MessageRepository
 import kotlinx.coroutines.launch
 
-class MessageDetailViewModel(private val repo: MessageRepository) : ViewModel() {
-    private val liveData = repo.allMessages.asLiveData()
-
-    fun getMessageForId(id: String) : Message? {
-        liveData.value?.let { messages ->
-            return messages.firstOrNull { it.id == id }
-        }
-        return null
+class MessageDetailViewModel(val repo: MessageRepository) : ViewModel() {
+    fun removeMessage(message: Message) = viewModelScope.launch {
+        Log.d(TAG, "Removing message: ${message.id}")
+        repo.delete(message)
     }
 
-    fun removeMessage(message: Message) = viewModelScope.launch {
-        repo.delete(message)
+    companion object {
+        private const val TAG = "MessageDetailViewModel"
     }
 }
 

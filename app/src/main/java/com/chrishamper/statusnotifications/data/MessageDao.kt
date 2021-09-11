@@ -1,15 +1,16 @@
 package com.chrishamper.statusnotifications.data
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
     @Query("SELECT * FROM messages ORDER BY sent DESC")
-    fun getAllBySent(): Flow<List<Message>>
+    fun getAllOrderedBySent(): Flow<List<Message>>
 
-//    @Query("SELECT * FROM messages WHERE id = :id LIMIT 1")
-//    suspend fun getByID(id: String): Flow<Message>
+    @Query("SELECT * FROM messages WHERE id = :id LIMIT 1")
+    fun getByID(id: String): LiveData<Message>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(msg: Message)
