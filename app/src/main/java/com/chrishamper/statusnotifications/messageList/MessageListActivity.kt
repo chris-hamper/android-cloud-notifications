@@ -1,18 +1,15 @@
 package com.chrishamper.statusnotifications.messageList
 
-import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.chrishamper.statusnotifications.R
 import com.chrishamper.statusnotifications.data.Message
@@ -20,11 +17,11 @@ import com.chrishamper.statusnotifications.messageDetail.MessageDetailActivity
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
 
+
 const val MESSAGE_ID = "message id"
 const val MESSAGE_TITLE = "title"
 const val MESSAGE_BODY = "body"
 const val MESSAGE_SENT_TIME = "sent time"
-const val NEW_MESSAGE_INTENT = "new message"
 const val NEW_MESSAGE_ACTIVITY_INTENT_CODE = 1
 
 class MessageListActivity : AppCompatActivity() {
@@ -40,6 +37,12 @@ class MessageListActivity : AppCompatActivity() {
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.adapter = messageAdapter
+
+        val dividerItemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
+        dividerItemDecoration.setDrawable(
+            ColorDrawable(resources.getColor(R.color.grey_500, recyclerView.context.theme))
+        )
+        recyclerView.addItemDecoration(dividerItemDecoration)
 
         messageListViewModel.liveData.observe(this, {
             it?.let {
