@@ -12,13 +12,14 @@ import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
+import com.chrishamper.statusnotifications.data.DataSource
+import com.chrishamper.statusnotifications.data.Message
 import com.chrishamper.statusnotifications.messageList.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import java.util.*
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
-    private val broadcastManager = LocalBroadcastManager.getInstance(this);
-
     /**
      * Called when message is received.
      *
@@ -57,19 +58,19 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification: '${it.title}' ${it.body}")
 
-            if (it.title != null && it.body != null) {
+            if (it.title != null && it.body != null && remoteMessage.messageId != null) {
                 Log.d(TAG, "Sending Notification")
                 sendNotification(it.title!!, it.body!!)
 
-                val intent = Intent(NEW_MESSAGE_INTENT)
-//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                intent.putExtra(MESSAGE_TITLE, it.title!!)
-                intent.putExtra(MESSAGE_BODY, it.body!!)
-                intent.putExtra(MESSAGE_ID, remoteMessage.messageId)
-                intent.putExtra(MESSAGE_SENT_TIME, remoteMessage.sentTime)
+                Log.d(TAG, "Adding new message to list")
+                val dataSource = DataSource.getDataSource()
+                dataSource.addMessage(Message(
+                    remoteMessage.messageId!!,
+                    it.title!!,
+                    it.body!!,
+                    Date(remoteMessage.sentTime),
+                ))
 
-                Log.d(TAG, "Broadcasting new message intent")
-                broadcastManager.sendBroadcast(intent)
             }
             else {
                 Log.d(TAG, "Notification didn't have all necessary fields")

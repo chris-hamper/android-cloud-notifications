@@ -32,14 +32,6 @@ class MessageListActivity : AppCompatActivity() {
         MessageListViewModelFactory()
     }
 
-    private val messageReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.let {
-                addMessageFromIntent(intent)
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -94,18 +86,6 @@ class MessageListActivity : AppCompatActivity() {
                 Log.d(TAG, msg)
 //                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
             }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReceiver,
-            IntentFilter(NEW_MESSAGE_INTENT)
-        )
-    }
-
-    override fun onStop() {
-        super.onStop()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReceiver)
     }
 
     /* Opens MessageDetailActivity when RecyclerView item is clicked. */
