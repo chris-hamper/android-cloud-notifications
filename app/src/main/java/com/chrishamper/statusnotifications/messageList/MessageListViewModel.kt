@@ -28,17 +28,8 @@ class MessageListViewModel(val dataSource: DataSource) : ViewModel() {
     val liveData = dataSource.getMessageList()
 
     /* If the name and description are present, create new Message and add it to the datasource */
-    fun insertMessage(title: String?, body: String?) {
-        if (title == null || body == null) {
-            return
-        }
-
-        val msg = Message(
-            Random.nextLong(),
-            title,
-            body,
-            Calendar.getInstance().time,
-        )
+    fun insertMessage(id: String, title: String, body: String, sent: Long) {
+        val msg = Message(id, title, body, Date(sent))
 
         dataSource.addMessage(msg)
     }

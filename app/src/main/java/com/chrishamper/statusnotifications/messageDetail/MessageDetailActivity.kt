@@ -34,7 +34,7 @@ class MessageDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_message_detail)
 
-        var currentMessageId: Long? = null
+        var currentMessageId: String? = null
 
         /* Connect variables to UI elements. */
         val messageTitle: TextView = findViewById(R.id.message_detail_title)
@@ -43,7 +43,7 @@ class MessageDetailActivity : AppCompatActivity() {
 
         val bundle: Bundle? = intent.extras
         if (bundle != null) {
-            currentMessageId = bundle.getLong(MESSAGE_ID)
+            currentMessageId = bundle.getString(MESSAGE_ID)
         }
 
         // If currentMessageId is not null, get corresponding message and set fields

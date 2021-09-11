@@ -9,16 +9,15 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.chrishamper.statusnotifications.messageList.MessageListActivity
-import com.chrishamper.statusnotifications.messageList.MESSAGE_BODY
-import com.chrishamper.statusnotifications.messageList.MESSAGE_TITLE
-import com.chrishamper.statusnotifications.messageList.NEW_MESSAGE_ACTIVITY_INTENT_CODE
+import com.chrishamper.statusnotifications.messageList.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
+    private val broadcastManager = LocalBroadcastManager.getInstance(this);
 
     /**
      * Called when message is received.
@@ -58,7 +57,23 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         remoteMessage.notification?.let {
             Log.d(TAG, "Message Notification: '${it.title}' ${it.body}")
 
-            it.body?.let { body -> it.title?.let { title -> sendNotification(title, body) } }
+            if (it.title != null && it.body != null) {
+                Log.d(TAG, "Sending Notification")
+                sendNotification(it.title!!, it.body!!)
+
+                val intent = Intent(NEW_MESSAGE_INTENT)
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.putExtra(MESSAGE_TITLE, it.title!!)
+                intent.putExtra(MESSAGE_BODY, it.body!!)
+                intent.putExtra(MESSAGE_ID, remoteMessage.messageId)
+                intent.putExtra(MESSAGE_SENT_TIME, remoteMessage.sentTime)
+
+                Log.d(TAG, "Broadcasting new message intent")
+                broadcastManager.sendBroadcast(intent)
+            }
+            else {
+                Log.d(TAG, "Notification didn't have all necessary fields")
+            }
         }
     }
     // [END receive_message]
@@ -118,8 +133,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private fun sendNotification(title: String, body: String) {
         val intent = Intent(this, MessageListActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.putExtra(MESSAGE_TITLE, title)
-        intent.putExtra(MESSAGE_BODY, body)
 
         val pendingIntent = PendingIntent.getActivity(this, NEW_MESSAGE_ACTIVITY_INTENT_CODE,
             intent, PendingIntent.FLAG_ONE_SHOT)

@@ -22,9 +22,8 @@ import com.chrishamper.statusnotifications.data.DataSource
 import com.chrishamper.statusnotifications.data.Message
 
 class MessageDetailViewModel(private val datasource: DataSource) : ViewModel() {
-
     /* Queries datasource to returns a message that corresponds to an id. */
-    fun getMessageForId(id: Long) : Message? {
+    fun getMessageForId(id: String) : Message? {
         return datasource.getMessageForId(id)
     }
 
@@ -35,7 +34,6 @@ class MessageDetailViewModel(private val datasource: DataSource) : ViewModel() {
 }
 
 class MessageDetailViewModelFactory : ViewModelProvider.Factory {
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MessageDetailViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

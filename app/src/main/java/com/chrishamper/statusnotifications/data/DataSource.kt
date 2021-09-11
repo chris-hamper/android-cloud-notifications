@@ -47,7 +47,7 @@ class DataSource(messages: List<Message>) {
     }
 
     /* Returns message given an ID. */
-    fun getMessageForId(id: Long): Message? {
+    fun getMessageForId(id: String): Message? {
         liveData.value?.let { messages ->
             return messages.firstOrNull{ it.id == id }
         }
@@ -65,10 +65,10 @@ class DataSource(messages: List<Message>) {
             return synchronized(DataSource::class) {
                 val newInstance = INSTANCE ?: DataSource(listOf(
                     Message(
-                        id = 1,
+                        id = "test",
                         title = "Title",
                         body = "Body",
-                        received = Calendar.getInstance().time,
+                        sent = Calendar.getInstance().time,
                     ),
                 ))
                 INSTANCE = newInstance

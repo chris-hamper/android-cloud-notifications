@@ -19,8 +19,8 @@ package com.chrishamper.statusnotifications.data
 import java.util.Date
 
 data class Message(
-    val id: Long,
+    val id: String,
     val title: String,
     val body: String,
-    val received: Date,
+    val sent: Date,
 )
