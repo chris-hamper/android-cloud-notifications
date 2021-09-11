@@ -16,33 +16,25 @@
 
 package com.chrishamper.statusnotifications.messageList
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.chrishamper.statusnotifications.data.DataSource
+import androidx.lifecycle.*
 import com.chrishamper.statusnotifications.data.Message
+import com.chrishamper.statusnotifications.data.MessageRepository
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.random.Random
 
-class MessageListViewModel(val dataSource: DataSource) : ViewModel() {
+class MessageListViewModel(private val repo: MessageRepository) : ViewModel() {
+    val liveData: LiveData<List<Message>> = repo.allMessages.asLiveData()
 
-    val liveData = dataSource.getMessageList()
-
-    /* If the name and description are present, create new Message and add it to the datasource */
-    fun insertMessage(id: String, title: String, body: String, sent: Long) {
-        val msg = Message(id, title, body, Date(sent))
-
-        dataSource.addMessage(msg)
+    fun insertMessage(id: String, title: String, body: String, sent: Long) = viewModelScope.launch {
+        repo.insert(Message(id, title, body, Date(sent)))
     }
 }
 
-class MessageListViewModelFactory : ViewModelProvider.Factory {
-
+class MessageListViewModelFactory(private val repo: MessageRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MessageListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MessageListViewModel(
-                dataSource = DataSource.getDataSource()
-            ) as T
+            return MessageListViewModel(repo) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

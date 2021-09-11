@@ -21,13 +21,13 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.chrishamper.statusnotifications.MyApplication
 import com.chrishamper.statusnotifications.R
 import com.chrishamper.statusnotifications.messageList.MESSAGE_ID
 
 class MessageDetailActivity : AppCompatActivity() {
-
     private val messageDetailViewModel by viewModels<MessageDetailViewModel> {
-        MessageDetailViewModelFactory()
+        MessageDetailViewModelFactory((application as MyApplication).repo)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

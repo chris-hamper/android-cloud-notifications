@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.chrishamper.statusnotifications.MyApplication
 import com.chrishamper.statusnotifications.R
 import com.chrishamper.statusnotifications.data.Message
 import com.chrishamper.statusnotifications.messageDetail.MessageDetailActivity
@@ -26,7 +27,7 @@ const val NEW_MESSAGE_ACTIVITY_INTENT_CODE = 1
 
 class MessageListActivity : AppCompatActivity() {
     private val messageListViewModel by viewModels<MessageListViewModel> {
-        MessageListViewModelFactory()
+        MessageListViewModelFactory((application as MyApplication).repo)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -18,28 +18,32 @@ package com.chrishamper.statusnotifications.messageDetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.chrishamper.statusnotifications.data.DataSource
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.chrishamper.statusnotifications.data.Message
+import com.chrishamper.statusnotifications.data.MessageRepository
+import kotlinx.coroutines.launch
 
-class MessageDetailViewModel(private val datasource: DataSource) : ViewModel() {
-    /* Queries datasource to returns a message that corresponds to an id. */
+class MessageDetailViewModel(private val repo: MessageRepository) : ViewModel() {
+    private val liveData = repo.allMessages.asLiveData()
+
     fun getMessageForId(id: String) : Message? {
-        return datasource.getMessageForId(id)
+        liveData.value?.let { messages ->
+            return messages.firstOrNull { it.id == id }
+        }
+        return null
     }
 
-    /* Tells datasource to remove a message. */
-    fun removeMessage(message: Message) {
-        datasource.removeMessage(message)
+    fun removeMessage(message: Message) = viewModelScope.launch {
+        repo.delete(message)
     }
 }
 
-class MessageDetailViewModelFactory : ViewModelProvider.Factory {
+class MessageDetailViewModelFactory(private val repo: MessageRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MessageDetailViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MessageDetailViewModel(
-                datasource = DataSource.getDataSource()
-            ) as T
+            return MessageDetailViewModel(repo) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -9,17 +9,21 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
-import com.chrishamper.statusnotifications.data.DataSource
 import com.chrishamper.statusnotifications.data.Message
 import com.chrishamper.statusnotifications.messageList.*
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.util.*
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
+    private val repo by lazy { (application as MyApplication).repo }
+    private val scope = CoroutineScope(SupervisorJob())
+
     /**
      * Called when message is received.
      *
@@ -63,14 +67,14 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                 sendNotification(it.title!!, it.body!!)
 
                 Log.d(TAG, "Adding new message to list")
-                val dataSource = DataSource.getDataSource()
-                dataSource.addMessage(Message(
-                    remoteMessage.messageId!!,
-                    it.title!!,
-                    it.body!!,
-                    Date(remoteMessage.sentTime),
-                ))
-
+                scope.launch {
+                    repo.insert(Message(
+                        remoteMessage.messageId!!,
+                        it.title!!,
+                        it.body!!,
+                        Date(remoteMessage.sentTime),
+                    ))
+                }
             }
             else {
                 Log.d(TAG, "Notification didn't have all necessary fields")
