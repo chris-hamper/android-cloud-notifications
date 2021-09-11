@@ -16,11 +16,17 @@
 
 package com.chrishamper.statusnotifications.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.Date
 
+@Entity(tableName = "messages")
 data class Message(
-    val id: String,
+    @PrimaryKey val id: String,
     val title: String,
     val body: String,
+
+    @ColumnInfo()
     val sent: Date,
 )
