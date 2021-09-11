@@ -7,6 +7,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -45,9 +48,18 @@ class MessageListActivity : AppCompatActivity() {
         )
         recyclerView.addItemDecoration(dividerItemDecoration)
 
+        val noMessagesView: TextView = findViewById(R.id.no_messages_view)
+
         messageListViewModel.liveData.observe(this, {
             it?.let {
                 messageAdapter.submitList(it as MutableList<Message>)
+
+                if (it.isEmpty()) {
+                    noMessagesView.visibility = VISIBLE
+                }
+                else {
+                    noMessagesView.visibility = GONE
+                }
             }
         })
 
