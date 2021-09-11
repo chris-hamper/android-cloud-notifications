@@ -26,14 +26,15 @@
         android:paddingTop="24dp"
         android:paddingEnd="16dp"
         android:text="Title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+        android:textAppearance="?attr/textAppearanceHeadline6" />
 
     <TextView
         android:id="@+id/message_detail_body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="Body" />
+        android:text="Body"
+        android:textAppearance="?attr/textAppearanceBody1"/>
 
     <Button
         android:id="@+id/remove_button"
