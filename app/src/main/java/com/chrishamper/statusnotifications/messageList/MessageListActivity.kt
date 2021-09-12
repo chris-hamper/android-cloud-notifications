@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -98,9 +99,9 @@ class MessageListActivity : AppCompatActivity() {
                 var msg = getString(R.string.msg_subscribed)
                 if (!task.isSuccessful) {
                     msg = getString(R.string.msg_subscribe_failed)
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                 }
                 Log.d(TAG, msg)
-//                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -110,15 +111,6 @@ class MessageListActivity : AppCompatActivity() {
         intent.putExtra(MESSAGE_ID, message.id)
         startActivity(intent)
     }
-
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, intent)
-//
-//        /* Inserts message into viewModel. */
-//        if (requestCode == NEW_MESSAGE_ACTIVITY_INTENT_CODE && resultCode == Activity.RESULT_OK) {
-//            intent?.let { addMessageFromIntent(it) }
-//        }
-//    }
 
     private fun addMessageFromIntent(intent: Intent) {
         val title = intent.getStringExtra(MESSAGE_TITLE)
