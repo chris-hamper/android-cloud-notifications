@@ -34,7 +34,8 @@ class MessageAdapter(private val onClick: (Message) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
         private val messageTitleView: TextView = itemView.findViewById(R.id.message_title)
         private val messageBodyView: TextView = itemView.findViewById(R.id.message_body)
-        private var currentMessage: Message? = null
+        var currentMessage: Message? = null
+            private set
 
         init {
             itemView.setOnClickListener {

@@ -28,6 +28,10 @@ class MessageListViewModel(private val repo: MessageRepository) : ViewModel() {
     fun insertMessage(id: String, title: String, body: String, sent: Long) = viewModelScope.launch {
         repo.insert(Message(id, title, body, Date(sent)))
     }
+
+    fun removeMessage(message: Message) = viewModelScope.launch {
+        repo.delete(message)
+    }
 }
 
 class MessageListViewModelFactory(private val repo: MessageRepository) : ViewModelProvider.Factory {

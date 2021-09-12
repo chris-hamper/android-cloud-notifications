@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.chrishamper.statusnotifications.MyApplication
 import com.chrishamper.statusnotifications.R
@@ -42,6 +43,9 @@ class MessageListActivity : AppCompatActivity() {
 
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         recyclerView.adapter = messageAdapter
+
+        val itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(messageListViewModel))
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
         val dividerItemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
         dividerItemDecoration.setDrawable(
@@ -128,5 +132,22 @@ class MessageListActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MessageListActivity"
+    }
+}
+
+class SwipeToDeleteCallback(private val messageListViewModel: MessageListViewModel)
+    : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT + ItemTouchHelper.RIGHT) {
+
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+        // Delete swiped message
+        val mvh = viewHolder as MessageAdapter.MessageViewHolder
+        mvh.currentMessage?.let {
+            messageListViewModel.removeMessage(it)
+        }
+    }
+
+    override fun onMove(view: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+        // Don't support dragging up/down
+        return false
     }
 }
